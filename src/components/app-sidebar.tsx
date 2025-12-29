@@ -7,7 +7,6 @@ import {
   Search,
   Swords,
   LayoutDashboard,
-  Settings,
   ShieldCheck,
 } from "lucide-react"
 
@@ -24,49 +23,30 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// Menu items grouped by function
+// 1. Define the User type for TypeScript
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user?: any; // Accepting the user prop from layout
+}
+
 const data = {
-  navMain: [
-    {
-      title: "Overview",
-      url: "/dashboard",
-      icon: LayoutDashboard,
-    },
-  ],
+  // ... (keep the same navMain, intelligence, and content arrays from before)
+  navMain: [{ title: "Overview", url: "/dashboard", icon: LayoutDashboard }],
   intelligence: [
-    {
-      title: "Keyword Research",
-      url: "/dashboard/keywords",
-      icon: Search,
-    },
-    {
-      title: "Site Auditor",
-      url: "/dashboard/audit",
-      icon: ShieldCheck,
-    },
-    {
-      title: "Competitor War Room",
-      url: "/dashboard/competitors",
-      icon: Swords,
-    },
+    { title: "Keyword Research", url: "/dashboard/keywords", icon: Search },
+    { title: "Site Auditor", url: "/dashboard/audit", icon: ShieldCheck },
+    { title: "Competitor War Room", url: "/dashboard/competitors", icon: Swords },
   ],
   content: [
-    {
-      title: "AI Writer",
-      url: "/dashboard/writer",
-      icon: FileText,
-    },
-    {
-      title: "Rank Predictor",
-      url: "/dashboard/predict",
-      icon: BarChart3,
-    },
+    { title: "AI Writer", url: "/dashboard/writer", icon: FileText },
+    { title: "Rank Predictor", url: "/dashboard/predict", icon: BarChart3 },
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+// 2. Update the function signature to use the new Props
+export function AppSidebar({ user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" className="border-r border-zinc-800 bg-black" {...props}>
+      {/* ... (keep the rest of the sidebar code exactly the same) */}
       <SidebarHeader className="h-16 flex items-center px-6 border-b border-zinc-800">
         <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-red-500 bg-clip-text text-transparent">
           NEXUS SEO
@@ -74,7 +54,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       
       <SidebarContent className="bg-black">
-        {/* General Section */}
         <SidebarGroup>
           <SidebarMenu>
             {data.navMain.map((item) => (
@@ -90,7 +69,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Intelligence Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-zinc-500">Intelligence</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -109,7 +87,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Content Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-zinc-500">Content</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -128,7 +105,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
       <SidebarRail />
     </Sidebar>
   )
