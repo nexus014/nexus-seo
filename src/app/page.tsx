@@ -1,74 +1,86 @@
-"use client"
-import { useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Search, Sparkles, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { 
+  Search, 
+  FileText, 
+  BarChart3, 
+  Swords, 
+  ArrowUpRight, 
+  ShieldCheck 
+} from "lucide-react";
 
-export default function KeywordPage() {
-  const [keyword, setKeyword] = useState('');
-  const [results, setResults] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+const stats = [
+  { name: "Total Audits", value: "12", icon: ShieldCheck, color: "text-blue-500" },
+  { name: "Keywords Tracked", value: "48", icon: Search, color: "text-emerald-500" },
+  { name: "Content Drafts", value: "7", icon: FileText, color: "text-amber-500" },
+  { name: "Avg. Nexus Score", value: "82%", icon: BarChart3, color: "text-purple-500" },
+];
 
-  const handleSearch = async () => {
-    setLoading(true);
-    const res = await fetch('/api/keywords', {
-      method: 'POST',
-      body: JSON.stringify({ keyword }),
-    });
-    const data = await res.json();
-    setResults(data);
-    setLoading(false);
-  };
-
+export default function DashboardPage() {
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">Keyword Intelligence</h1>
-        <p className="text-zinc-500">Nexus-1 AI analyzes SERP intensity and predicts your path to #1.</p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div>
+        <h1 className="text-3xl font-bold text-white">Command Center</h1>
+        <p className="text-zinc-500">Welcome back. Here is what's happening with your SEO projects.</p>
       </div>
 
-      <div className="flex gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
-          <Input 
-            placeholder="Enter target keyword (e.g., 'best ai tools')" 
-            className="pl-10 h-12 bg-zinc-900/50 border-zinc-800"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-        </div>
-        <Button onClick={handleSearch} disabled={loading} className="h-12 px-8 bg-blue-600 hover:bg-blue-500">
-          {loading ? <Loader2 className="animate-spin mr-2" /> : <Sparkles className="mr-2" size={18} />}
-          Analyze
-        </Button>
-      </div>
-
-      {results && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4">
-          <Card className="p-6 bg-zinc-900/50 border-zinc-800">
-            <h3 className="font-semibold mb-4 text-blue-400">AI Strategy Insight</h3>
-            <div className="text-sm text-zinc-300 whitespace-pre-wrap leading-relaxed">
-              {results.ai_insight}
-            </div>
+      {/* Stats Grid */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.name} className="bg-zinc-900/50 border-zinc-800">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+              <CardTitle className="text-sm font-medium text-zinc-400">{stat.name}</CardTitle>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stat.value}</div>
+            </CardContent>
           </Card>
+        ))}
+      </div>
 
-          <Card className="p-6 bg-zinc-900/50 border-zinc-800">
-            <h3 className="font-semibold mb-4 text-emerald-400">Top Competitors</h3>
+      {/* Quick Actions / Activity Area */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4 bg-zinc-900/50 border-zinc-800">
+          <CardHeader>
+            <CardTitle className="text-white">Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
-              {results.serp.map((item: any, i: number) => (
-                <div key={i} className="flex flex-col gap-1 border-b border-zinc-800 pb-2 last:border-0">
-                  <span className="text-xs text-blue-500 font-mono">#{i + 1}</span>
-                  <a href={item.link} target="_blank" className="text-sm font-medium hover:underline truncate">
-                    {item.title}
-                  </a>
-                  <span className="text-xs text-zinc-500 truncate">{item.displayed_link}</span>
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-black/40 border border-zinc-800/50">
+                  <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                    <ArrowUpRight className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-zinc-200">Audit completed for example.com</p>
+                    <p className="text-xs text-zinc-500">2 hours ago</p>
+                  </div>
                 </div>
               ))}
             </div>
-          </Card>
-        </div>
-      )}
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3 bg-zinc-900/50 border-zinc-800">
+          <CardHeader>
+            <CardTitle className="text-white">Competitor Watch</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <div className="flex items-center justify-between text-sm">
+                <span className="text-zinc-400">Competitor A</span>
+                <span className="text-emerald-500 font-mono">+4.2%</span>
+             </div>
+             <div className="flex items-center justify-between text-sm">
+                <span className="text-zinc-400">Competitor B</span>
+                <span className="text-red-500 font-mono">-1.8%</span>
+             </div>
+             <div className="h-2 w-full bg-zinc-800 rounded-full mt-4">
+                <div className="h-2 bg-blue-600 rounded-full w-[65%]"></div>
+             </div>
+             <p className="text-[10px] text-zinc-500 text-center uppercase tracking-widest mt-2">Market Share Analysis</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
