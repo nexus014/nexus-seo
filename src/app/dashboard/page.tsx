@@ -1,74 +1,50 @@
-"use client"
-import { useState } from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { CheckCircle2, AlertCircle, Wand2, Loader2 } from "lucide-react";
+import { createServerClient } from '@supabase/auth-helpers-nextjs'; // Changed name here
+import { cookies } from 'next/headers';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Search, FileText, BarChart3, ShieldCheck } from "lucide-react";
 
-export default function AuditPage() {
-  const [url, setUrl] = useState('');
-  const [report, setReport] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  
+  // Using the new name 'createServerClient' as the error suggested
+  const supabase = createServerClient({ 
+    cookies: () => cookieStore 
+  });
 
-  const runAudit = async () => {
-    setLoading(true);
-    const res = await fetch('/api/audit', {
-      method: 'POST',
-      body: JSON.stringify({ url }),
-    });
-    const data = await res.json();
-    setReport(data);
-    setLoading(false);
-  };
+  // Fetch real counts
+  const [audits, keywords, predictions] = await Promise.all([
+    supabase.from('audits').select('*', { count: 'exact', head: true }),
+    supabase.from('keywords').select('*', { count: 'exact', head: true }),
+    supabase.from('predictions').select('*', { count: 'exact', head: true }),
+  ]);
+
+  const stats = [
+    { name: "Total Audits", value: audits.count || 0, icon: ShieldCheck, color: "text-blue-500" },
+    { name: "Keywords Saved", value: keywords.count || 0, icon: Search, color: "text-emerald-500" },
+    { name: "Rank Predictions", value: predictions.count || 0, icon: BarChart3, color: "text-purple-500" },
+    { name: "AI Drafts", value: "Active", icon: FileText, color: "text-amber-500" },
+  ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold">Site Auditor</h1>
-        <p className="text-zinc-500">Analyze any URL for technical SEO gaps and AI-generated fixes.</p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div>
+        <h1 className="text-3xl font-bold text-white tracking-tight">Command Center</h1>
+        <p className="text-zinc-500 text-sm mt-1">Real-time status of your SEO engine.</p>
       </div>
 
-      <div className="flex gap-4 p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl">
-        <Input 
-          placeholder="https://example.com" 
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="bg-black border-zinc-800"
-        />
-        <Button onClick={runAudit} disabled={loading} className="bg-blue-600">
-          {loading ? <Loader2 className="animate-spin mr-2" /> : "Run Nexus Audit"}
-        </Button>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.name} className="bg-zinc-900/50 border-zinc-800 backdrop-blur-sm">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-zinc-400">{stat.name}</CardTitle>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-white">{stat.value}</div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {report && report.success && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in zoom-in-95 duration-300">
-          {/* Current Status */}
-          <Card className="p-6 bg-zinc-900/50 border-zinc-800">
-            <h3 className="text-sm font-bold text-zinc-500 uppercase mb-4 tracking-widest">Current Metadata</h3>
-            <div className="space-y-4 text-sm">
-              <div>
-                <span className="block text-zinc-500">Title Tag</span>
-                <p className="text-white font-medium">{report.current.title}</p>
-              </div>
-              <div>
-                <span className="block text-zinc-500">Meta Description</span>
-                <p className="text-white font-medium">{report.current.description}</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* AI Optimizer */}
-          <Card className="p-6 border-blue-500/30 bg-blue-500/5">
-            <div className="flex items-center gap-2 text-blue-400 mb-4">
-              <Wand2 size={18} />
-              <h3 className="text-sm font-bold uppercase tracking-widest">AI Recommendations</h3>
-            </div>
-            <p className="text-zinc-300 text-sm whitespace-pre-wrap italic">
-              {report.suggestion}
-            </p>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
